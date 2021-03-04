@@ -16,6 +16,7 @@ library(data.table)
 unzip("activity.zip", overwrite = TRUE)
 rawData <- read.csv("activity.csv")
 Data <- data.table(rawData)
+noNAData <- Data[!is.na(Data$steps),]
 ```
 
 
@@ -23,7 +24,7 @@ Data <- data.table(rawData)
 Aggregate the data first by summing the steps for each day. Then calculate the mean and median of the daily steps. Plot the distribution of steps per day along with the mean and median values. 
 ```{r avergesteps, eval = TRUE}
 library(data.table)
-DaySteps <- Data[,list(sum_steps = sum(steps, na.rm = T)),by='date']
+DaySteps <- noNAData[,list(sum_steps = sum(steps, na.rm = T)),by='date']
 avgDaySteps <- mean(DaySteps$sum_steps)
 medianDaySteps <- median(DaySteps$sum_steps)
 ```
@@ -53,7 +54,7 @@ print(g)
 ## What is the average daily activity pattern?
 Find the average number of steps for each interval across all the days of the study. Readings are taken at 5 minutes intervals throughout the day for the months of October and November, 2012. Calculate the interval with highest average value and the average number of steps at that time. Plot the average steps throughout the day and annotate the maximum values. 
 ```{r averagedaily}
-avgIntervalSteps <- Data[,list(mean_steps = mean(steps, na.rm = T)), by='interval']
+avgIntervalSteps <- noNAData[,list(mean_steps = mean(steps, na.rm = T)), by='interval']
 MaxInterval <- which.max(avgIntervalSteps$mean_steps)
 MaxIntervalTime <- avgIntervalSteps[MaxInterval,]$interval
 MaxIntervalSteps <- avgIntervalSteps[MaxInterval,]$mean_steps

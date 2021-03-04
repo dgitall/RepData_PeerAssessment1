@@ -17,6 +17,7 @@ library(data.table)
 unzip("activity.zip", overwrite = TRUE)
 rawData <- read.csv("activity.csv")
 Data <- data.table(rawData)
+noNAData <- Data[!is.na(Data$steps),]
 ```
 
 
@@ -25,7 +26,7 @@ Aggregate the data first by summing the steps for each day. Then calculate the m
 
 ```r
 library(data.table)
-DaySteps <- Data[,list(sum_steps = sum(steps, na.rm = T)),by='date']
+DaySteps <- noNAData[,list(sum_steps = sum(steps, na.rm = T)),by='date']
 avgDaySteps <- mean(DaySteps$sum_steps)
 medianDaySteps <- median(DaySteps$sum_steps)
 ```
@@ -59,7 +60,7 @@ print(g)
 Find the average number of steps for each interval across all the days of the study. Readings are taken at 5 minutes intervals throughout the day for the months of October and November, 2012. Calculate the interval with highest average value and the average number of steps at that time. Plot the average steps throughout the day and annotate the maximum values. 
 
 ```r
-avgIntervalSteps <- Data[,list(mean_steps = mean(steps, na.rm = T)), by='interval']
+avgIntervalSteps <- noNAData[,list(mean_steps = mean(steps, na.rm = T)), by='interval']
 MaxInterval <- which.max(avgIntervalSteps$mean_steps)
 MaxIntervalTime <- avgIntervalSteps[MaxInterval,]$interval
 MaxIntervalSteps <- avgIntervalSteps[MaxInterval,]$mean_steps
@@ -201,11 +202,11 @@ print(kable(stats, type="html"))
 
 
 
-|        |      None|      Mean|      PMM| Mean Interval|
-|:-------|---------:|---------:|--------:|-------------:|
-|Mean    |  9354.230| 10766.189| 10540.23|     10766.189|
-|Median  | 10395.000| 10766.189| 10571.00|     10766.189|
-|Std Dev |  5405.895|  3974.391|  4078.79|      3974.391|
+|        |     None|      Mean|       PMM| Mean Interval|
+|:-------|--------:|---------:|---------:|-------------:|
+|Mean    | 10766.19| 10766.189| 10735.344|     10766.189|
+|Median  | 10765.00| 10766.189| 10600.000|     10766.189|
+|Std Dev |  4269.18|  3974.391|  4013.435|      3974.391|
 Another important consideration is the effect the imputation method may have on the activity patterns during the day. The graph below is similar to the analysis of the average daily activity performed above. However, we look at the **difference between each imputation method and the average daily activity with no imputation**. The sum of the absolute value of the difference is calculated and annotated in the graph.  
 
 The Mean method causes a significant shift during the times of day when the activity is small or zero and during the peak times of the day. The PMM method performs better during low activity periods but has widely fluctuating deviations during the remainder of the day. The Mean Interval method matches exactly the non-imputed average over the day since that was the basis for this imputation approach.
