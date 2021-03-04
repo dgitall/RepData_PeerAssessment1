@@ -32,28 +32,6 @@ medianDaySteps <- median(DaySteps$sum_steps)
 ```
 
 
-
-```r
-library(ggplot2)
-g <- ggplot(DaySteps, aes(x=sum_steps)) +
-  geom_histogram(bins = 30, fill="steelblue", color= "black", na.rm=TRUE) +
-  geom_vline(xintercept = avgDaySteps, color = "orange", alpha=.7, size = 1.5) +
-  geom_vline(xintercept = medianDaySteps, color = "violetred", alpha=.7, size = 1.5) +
-  annotate("rect", xmin=6100, ymin=8.8, xmax=9000, ymax=10, fill="orange", color="orange", alpha=.6) +  
-  annotate("text", x=7600, y=9.7, label="Mean", family="serif") +
-  annotate("text", x=7600, y=9.2, label= paste(as.character(round(avgDaySteps, 0)),
-                                               "Steps"), family="serif") +
-annotate("rect", xmin=10900, ymin=8.8, xmax=14000, ymax=10, fill="violetred", color="violetred", alpha=.6) +  
-  annotate("text", x=12500, y=9.7, label="Median", family="serif") +
-  annotate("text", x=12500, y=9.2, label=paste(as.character(medianDaySteps), "Steps"),
-           family="serif") +
-  scale_y_continuous(breaks=seq(0,10, by=2)) + 
-  labs(title = "Distribution of Steps Taken in a Day",
-       x = "Steps Per Day",
-       y = "Count of Days")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/plotavgsteps-1.png)<!-- -->
   
 ## What is the average daily activity pattern?
@@ -65,28 +43,6 @@ MaxInterval <- which.max(avgIntervalSteps$mean_steps)
 MaxIntervalTime <- avgIntervalSteps[MaxInterval,]$interval
 MaxIntervalSteps <- avgIntervalSteps[MaxInterval,]$mean_steps
 ```
-
-```r
-g <- ggplot(avgIntervalSteps, aes(x=factor(interval), y=mean_steps)) +
-  geom_area(stat="identity", fill = "steelblue", color="black",
-            alpha = .5, group = 1, na.rm=TRUE) +
-  scale_x_discrete(breaks = c(0,300,600,900,1200,1500,1800,2100,2355),
-                   labels = c("0","3:00","6:00","9:00","12:00","15:00",
-                              "18:00","21:00","23:55")) + 
-  geom_vline(xintercept = factor(MaxIntervalTime), 
-             color = "violetred", alpha=.7, size = 1) +
-  annotate("rect", xmin=110, ymin=160, xmax=160, ymax=200, fill="violetred", color="violetred", alpha=.6) +
-    annotate("text", x=135, y=190, label="Max Avg Steps:", family="serif", color="black") +
-    annotate("text", x=135, y=180, label=paste("Time =",as.character(MaxIntervalTime)), 
-                                                family="serif", color="black") +
-    annotate("text", x=135, y=170, label=paste("Steps =",as.character(round(MaxIntervalSteps,0))), 
-             family="serif", color="black") +
-  labs(title = "Steps During Day Averaged over October/November 2012",
-       x = "Time of Day",
-       y = "Average Steps Per 5 Minute Interval")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/averagedailyplot-1.png)<!-- -->
   
 ## Imputing missing values
@@ -112,17 +68,6 @@ Next, check to see what the distribution of missing values are by 'date'.
 ```r
 dateNA <- Data[,list(isnaCount = sum(is.na(steps), na.rm = T)), by='date']
 ```
-
-```r
-g <- ggplot(dateNA, aes(x=as.Date(date),y=isnaCount)) +
-  geom_bar(stat="identity", fill="chartreuse4", color= "black", na.rm=TRUE) +
-  scale_x_date(date_breaks = "2 weeks") +
-  labs(title = "Count of Missing Values by Date",
-       y = "Missing Value Count",
-       x = "Date")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/plotmissingdist-1.png)<!-- -->
   
 From this graph, we can see that all of the missing data occurs on 8 dates. On each date, there are 288 missing values. Since the readings are taken every 5 minutes, there are 288 readings per day. In other words, whenever there is missing data, it is missing for the entire day.
@@ -165,91 +110,18 @@ mimpsdDaySteps <- sd(mimpDaySteps$sum_steps)
 
 Histograms of the four data sets (no imputation, Mean imputation, PMM imputation, and Mean Interval imputation) reveal that all imputations replaced missing values with realistic substitutes calculated from the data set. The Mean and Mean Interval methods give the same results, as should be expected.The all also reduce the standard deviation of the values and either reduce or eliminate the difference between the mean and median. 
 
-
-```r
-DaySteps$Impute <- rep("None", length(DaySteps$date))
-impDaySteps$Impute <- rep("Mean", length(impDaySteps$date))
-pmmDaySteps$Impute <- rep("PMM", length(pmmDaySteps$date))
-mimpDaySteps$Impute <- rep("Mean Interval", length(mimpDaySteps$date))
-
-graphingData <- rbind(DaySteps, impDaySteps, pmmDaySteps, mimpDaySteps)
-g <- ggplot(graphingData, aes(x=sum_steps)) +
-  geom_histogram(bins = 30, fill="steelblue", color= "black", na.rm=TRUE) +
-  facet_grid(Impute ~ .) +
-  scale_y_continuous(breaks=seq(0,10, by=2)) +
-  labs(title = "Distribution of Steps Taken in a Day by Imputation Method",
-       x = "Steps Per Day",
-       y = "Count of Days")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/plotimputedata-1.png)<!-- -->
   
 
-```r
-stats <- data.frame(c("Mean", "Median", "Std Dev"), 
-                    c(avgDaySteps, medianDaySteps,
-                      sd(DaySteps$sum_steps)),
-                    c(impavgDaySteps, impmedianDaySteps,
-                      impsdDaySteps),
-                    c(pmmavgDaySteps, pmmmedianDaySteps,
-                      pmmsdDaySteps),
-                    c(mimpavgDaySteps, mimpmedianDaySteps,
-                      mimpsdDaySteps))
-names(stats) <- c("","None", "Mean", "PMM", "Mean Interval")
-print(kable(stats, type="html"))
-```
-
-
-
 |        |     None|      Mean|       PMM| Mean Interval|
 |:-------|--------:|---------:|---------:|-------------:|
-|Mean    | 10766.19| 10766.189| 10735.344|     10766.189|
-|Median  | 10765.00| 10766.189| 10600.000|     10766.189|
-|Std Dev |  4269.18|  3974.391|  4013.435|      3974.391|
+|Mean    | 10766.19| 10766.189| 10186.410|     10766.189|
+|Median  | 10765.00| 10766.189| 10395.000|     10766.189|
+|Std Dev |  4269.18|  3974.391|  4274.366|      3974.391|
 Another important consideration is the effect the imputation method may have on the activity patterns during the day. The graph below is similar to the analysis of the average daily activity performed above. However, we look at the **difference between each imputation method and the average daily activity with no imputation**. The sum of the absolute value of the difference is calculated and annotated in the graph.  
 
 The Mean method causes a significant shift during the times of day when the activity is small or zero and during the peak times of the day. The PMM method performs better during low activity periods but has widely fluctuating deviations during the remainder of the day. The Mean Interval method matches exactly the non-imputed average over the day since that was the basis for this imputation approach.
   
-
-```r
-impavgIntervalSteps <- impData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
-pmmavgIntervalSteps <- pmmData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
-mimpavgIntervalSteps <- mimpData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
-avgIntervalSteps$Impute <- rep("None", length(avgIntervalSteps$interval))
-avgIntervalSteps$ImpDiff <- avgIntervalSteps$mean_steps - avgIntervalSteps$mean_steps
-impavgIntervalSteps$Impute <- rep("Mean", length(impavgIntervalSteps$interval))
-impavgIntervalSteps$ImpDiff <- impavgIntervalSteps$mean_steps - avgIntervalSteps$mean_steps
-pmmavgIntervalSteps$Impute <- rep("PMM", length(pmmavgIntervalSteps$interval))
-pmmavgIntervalSteps$ImpDiff <- pmmavgIntervalSteps$mean_steps - avgIntervalSteps$mean_steps
-mimpavgIntervalSteps$Impute <- rep("Mean Interval", length(mimpavgIntervalSteps$interval))
-mimpavgIntervalSteps$ImpDiff <- mimpavgIntervalSteps$mean_steps - avgIntervalSteps$mean_steps
-meanImpDiff <- sum(abs(impavgIntervalSteps$ImpDiff))
-pmmImpDiff <- sum(abs(pmmavgIntervalSteps$ImpDiff))
-mimpImpDiff <- sum(abs(mimpavgIntervalSteps$ImpDiff))
-
-avggraphingData <- rbind(avgIntervalSteps, impavgIntervalSteps, pmmavgIntervalSteps, mimpavgIntervalSteps)
-
-g <- ggplot(avggraphingData, aes(x=factor(interval), y=ImpDiff, group=Impute,
-                                 color=Impute)) +
-  geom_line(na.rm=TRUE) +
-  scale_x_discrete(breaks = c(0,300,600,900,1200,1500,1800,2100,2355),
-                   labels = c("0","3:00","6:00","9:00","12:00","15:00",
-                              "18:00","21:00","23:55")) +
-  annotate( "text", x=150, y=45, label="Total Difference From None:", color="black",  hjust = "left") +
-  annotate( "text",  x=150, y=42, label=paste("Mean =",as.character(round(meanImpDiff,0))),
-                 hjust = "left", color="red") +
-  annotate( "text",  x=150, y=39, label=paste("PMM =",as.character(round(pmmImpDiff,0))),
-                 hjust = "left", color="purple") +
-  annotate( "text",  x=150, y=36, label=paste("Mean Interval =",as.character(round(mimpImpDiff,0))),
-            hjust = "left", color="darkgreen") +
-  labs(title = "Differences in Average Steps During Day by Imputation Method",
-       x = "Time of Day",
-       y = "Difference in Average Steps Per 5 Minute Interval from No Imputation",
-       color="Imputation Method")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/impdailyplot-1.png)<!-- -->
   
 The Mean Interval imputation method is the preferred method for this data set. It matches the performance of the generalize methods when looking at shifts in the mean, median, and standard deviation of the data and significantly outperforms them in modifications to the average daily activity patterns.  
@@ -271,18 +143,4 @@ The basic activity patterns during the weekend do not deviate significantly from
 * The peak activity occurs at about the same time  of the day but the maximum is a little more than half the weekday peak. This may be due to a shorter morning run on weekends.
 * The midday activity levels are higher on the weekend. 
 * The evening activity levels extend later into the night on weekends.
-
-```r
-g <- ggplot(mimpavgWDIntervalSteps, aes(x=factor(interval), y=mean_steps)) +
-  geom_line(stat="identity", color= "steelblue", group = 1, na.rm=TRUE) +
-  scale_x_discrete(breaks = c(0,300,600,900,1200,1500,1800,2100,2355),
-                   labels = c("0","3:00","6:00","9:00","12:00","15:00",
-                              "18:00","21:00","23:55")) +
-  facet_grid(weekday~.) +
-  labs(title = "Steps During Day Averaged over October/November 2012",
-       x = "Time of Day",
-       y = "Average Steps Per 5 Minute Interval")
-print(g)
-```
-
 ![](PA1_template_files/figure-html/weekdayavgplot-1.png)<!-- -->

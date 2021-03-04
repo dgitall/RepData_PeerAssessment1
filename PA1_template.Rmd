@@ -30,7 +30,7 @@ medianDaySteps <- median(DaySteps$sum_steps)
 ```
 
 
-```{r plotavgsteps}
+```{r plotavgsteps, echo=FALSE}
 library(ggplot2)
 g <- ggplot(DaySteps, aes(x=sum_steps)) +
   geom_histogram(bins = 30, fill="steelblue", color= "black", na.rm=TRUE) +
@@ -59,7 +59,7 @@ MaxInterval <- which.max(avgIntervalSteps$mean_steps)
 MaxIntervalTime <- avgIntervalSteps[MaxInterval,]$interval
 MaxIntervalSteps <- avgIntervalSteps[MaxInterval,]$mean_steps
 ```
-```{r averagedailyplot}
+```{r averagedailyplot, echo=FALSE}
 g <- ggplot(avgIntervalSteps, aes(x=factor(interval), y=mean_steps)) +
   geom_area(stat="identity", fill = "steelblue", color="black",
             alpha = .5, group = 1, na.rm=TRUE) +
@@ -95,7 +95,7 @@ Next, check to see what the distribution of missing values are by 'date'.
 ```{r missingdist}
 dateNA <- Data[,list(isnaCount = sum(is.na(steps), na.rm = T)), by='date']
 ```
-```{r plotmissingdist}
+```{r plotmissingdist, echo=FALSE}
 g <- ggplot(dateNA, aes(x=as.Date(date),y=isnaCount)) +
   geom_bar(stat="identity", fill="chartreuse4", color= "black", na.rm=TRUE) +
   scale_x_date(date_breaks = "2 weeks") +
@@ -142,7 +142,7 @@ mimpsdDaySteps <- sd(mimpDaySteps$sum_steps)
 
 Histograms of the four data sets (no imputation, Mean imputation, PMM imputation, and Mean Interval imputation) reveal that all imputations replaced missing values with realistic substitutes calculated from the data set. The Mean and Mean Interval methods give the same results, as should be expected.The all also reduce the standard deviation of the values and either reduce or eliminate the difference between the mean and median. 
 
-```{r plotimputedata}
+```{r plotimputedata, echo=FALSE}
 DaySteps$Impute <- rep("None", length(DaySteps$date))
 impDaySteps$Impute <- rep("Mean", length(impDaySteps$date))
 pmmDaySteps$Impute <- rep("PMM", length(pmmDaySteps$date))
@@ -159,7 +159,7 @@ g <- ggplot(graphingData, aes(x=sum_steps)) +
 print(g)
 ```
   
-``` {r results='asis'}
+``` {r results='asis', echo=FALSE}
 stats <- data.frame(c("Mean", "Median", "Std Dev"), 
                     c(avgDaySteps, medianDaySteps,
                       sd(DaySteps$sum_steps)),
@@ -176,7 +176,7 @@ Another important consideration is the effect the imputation method may have on 
 
 The Mean method causes a significant shift during the times of day when the activity is small or zero and during the peak times of the day. The PMM method performs better during low activity periods but has widely fluctuating deviations during the remainder of the day. The Mean Interval method matches exactly the non-imputed average over the day since that was the basis for this imputation approach.
   
-```{r impdailyplot}
+```{r impdailyplot, echo=FALSE}
 impavgIntervalSteps <- impData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
 pmmavgIntervalSteps <- pmmData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
 mimpavgIntervalSteps <- mimpData[,list(mean_steps = mean(steps, na.rm = T)),'interval']
@@ -232,7 +232,7 @@ The basic activity patterns during the weekend do not deviate significantly from
 * The peak activity occurs at about the same time  of the day but the maximum is a little more than half the weekday peak. This may be due to a shorter morning run on weekends.
 * The midday activity levels are higher on the weekend. 
 * The evening activity levels extend later into the night on weekends.
-```{r weekdayavgplot}
+```{r weekdayavgplot, echo=FALSE}
 g <- ggplot(mimpavgWDIntervalSteps, aes(x=factor(interval), y=mean_steps)) +
   geom_line(stat="identity", color= "steelblue", group = 1, na.rm=TRUE) +
   scale_x_discrete(breaks = c(0,300,600,900,1200,1500,1800,2100,2355),
