@@ -90,6 +90,7 @@ impsdDaySteps <- sd(impDaySteps$sum_steps)
 2. Using the MICE package, impute the missing data using the 'pmm' method. For each missing entry, the PMM method (predictive mean matching)  forms a small set of candidate donors from all complete cases that have predicted values closest to the predicted value for the missing entry. One donor is randomly drawn from the candidates, and the observed value of the donor is taken to replace the missing value. 
 
 ```r
+set.seed(200)
 imp <- mice(Data, method = "pmm", m=1)
 pmmData <- data.table(complete(imp))
 pmmDaySteps <- pmmData[,list(sum_steps = sum(steps, na.rm = T)),'date']
@@ -115,9 +116,9 @@ Histograms of the four data sets (no imputation, Mean imputation, PMM imputation
 
 |        |     None|      Mean|       PMM| Mean Interval|
 |:-------|--------:|---------:|---------:|-------------:|
-|Mean    | 10766.19| 10766.189| 10186.410|     10766.189|
-|Median  | 10765.00| 10766.189| 10395.000|     10766.189|
-|Std Dev |  4269.18|  3974.391|  4274.366|      3974.391|
+|Mean    | 10766.19| 10766.189| 10641.492|     10766.189|
+|Median  | 10765.00| 10766.189| 10600.000|     10766.189|
+|Std Dev |  4269.18|  3974.391|  4025.717|      3974.391|
 Another important consideration is the effect the imputation method may have on the activity patterns during the day. The graph below is similar to the analysis of the average daily activity performed above. However, we look at the **difference between each imputation method and the average daily activity with no imputation**. The sum of the absolute value of the difference is calculated and annotated in the graph.  
 
 The Mean method causes a significant shift during the times of day when the activity is small or zero and during the peak times of the day. The PMM method performs better during low activity periods but has widely fluctuating deviations during the remainder of the day. The Mean Interval method matches exactly the non-imputed average over the day since that was the basis for this imputation approach.

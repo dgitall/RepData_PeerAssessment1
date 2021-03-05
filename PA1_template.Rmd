@@ -123,6 +123,7 @@ impsdDaySteps <- sd(impDaySteps$sum_steps)
   
 2. Using the MICE package, impute the missing data using the 'pmm' method. For each missing entry, the PMM method (predictive mean matching)  forms a small set of candidate donors from all complete cases that have predicted values closest to the predicted value for the missing entry. One donor is randomly drawn from the candidates, and the observed value of the donor is taken to replace the missing value. 
 ``` {r imputedatapmm, message=FALSE, warning=FALSE, results=FALSE}
+set.seed(200)
 imp <- mice(Data, method = "pmm", m=1)
 pmmData <- data.table(complete(imp))
 pmmDaySteps <- pmmData[,list(sum_steps = sum(steps, na.rm = T)),'date']
